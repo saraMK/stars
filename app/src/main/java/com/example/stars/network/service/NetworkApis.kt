@@ -10,6 +10,6 @@ interface NetworkApis {
     suspend fun getPopularPerson(@Query("page") page: Int): ResponseModel<List<PeopleModel>>
     @GET("person/{id}")
     suspend fun getPerson(@Path("id") id: String): PersonDetailsModel
-    @GET("person/{id}")
+    @GET("person/{id}/images")
     suspend fun getImages(@Path("id") id: String): ImagesModel
 }

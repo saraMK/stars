@@ -20,6 +20,7 @@ import javax.net.ssl.X509TrustManager
 
 const val BASE_URL = "https://api.themoviedb.org/3/"
 const val BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w300"
+const val ORIGIN_BASE_IMAGE_URL = "https://image.tmdb.org/t/p/original"
 private const val TIMEOUT_MIN = 2
 lateinit var retrofit: Retrofit
 val API_KEY = "6657d7af64bf41b3f94254646a08a504"
