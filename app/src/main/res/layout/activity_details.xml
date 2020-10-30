@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.example.stars.ui.main.details.DetailsViewModel" />
+    </data>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:background="@color/colorPrimary">
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+             >
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/app_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                android:stateListAnimator="@null"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#fff"
+                    android:fitsSystemWindows="true"
+                    app:contentScrim="@color/colorPrimaryDark"
+                    app:expandedTitleGravity="top"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+                        <ImageView
+                            android:focusable="true"
+                            android:id="@+id/slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="300dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/image"
+                            setResImage="@{viewModel.img}"
+                            />
+
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:layout_collapseMode="pin">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <ImageView
+                                android:id="@+id/toolbar_back"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:padding="5dp"
+                                android:src="@drawable/ic_back"
+                                android:textStyle="bold" />
+
+
+                        </RelativeLayout>
+                    </androidx.appcompat.widget.Toolbar>
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:fillViewport="true">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="15dp"
+                    >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="24sp"
+                        android:id="@+id/name"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:text="@{viewModel.name,default=`jfjjfjfjfj`}"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/louis_bold"
+                        />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/louis_regular"
+                        android:id="@+id/info"
+                        app:layout_constraintStart_toStartOf="@id/name"
+                        app:layout_constraintTop_toBottomOf="@id/name"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:text="@{viewModel.info,default=`jfjjfjfjfj sksks smssklskls`}"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="3dp"
+                        />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="17sp"
+                        android:fontFamily="@font/louis_regular"
+                        android:id="@+id/date"
+                        app:layout_constraintStart_toStartOf="@id/name"
+                        app:layout_constraintTop_toBottomOf="@id/info"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:text="@{@string/born(viewModel.date),default=`2/08/2020`}"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="8dp"
+                        />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/images_list"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        tools:itemCount="5"
+                        tools:listitem="@layout/actor_item_row"
+                        app:layout_constraintStart_toStartOf="@id/name"
+                        app:layout_constraintTop_toBottomOf="@id/date"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginTop="10dp"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.core.widget.NestedScrollView>
+
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <include
+            layout="@layout/loader"
+            app:viewModel="@{viewModel}" />
+    </RelativeLayout>
+
+</layout>
