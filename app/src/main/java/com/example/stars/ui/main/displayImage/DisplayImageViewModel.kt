@@ -1,15 +1,76 @@
 package com.example.stars.ui.main.displayImage
 
-import android.util.Log
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.core.app.ActivityCompat
 import androidx.databinding.ObservableField
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
+import com.example.stars.network.service.ORIGIN_BASE_IMAGE_URL
 import com.example.stars.ui.base.BaseViewModel
+import com.example.stars.utils.SaveImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.net.HttpURLConnection
+import java.net.URL
 
-class DisplayImageViewModel:BaseViewModel() {
-    var imag= ObservableField("kkkkk")
 
-     fun downloadImage(){
-        Log.d("djdjjdjdjdndnnd0","downloadImage")
+class DisplayImageViewModel() : BaseViewModel(), Callback {
+    var imag = ObservableField("")
+    lateinit var activity: Activity
+    var toastMsg = MutableLiveData<String>("")
+    var showPermissionDialog = MutableLiveData<Boolean>(false)
 
+    fun downloadImage() {
+        if (checkPermissionForExternalStorage(activity)) {
+            onToastMsg("Starting Download")
+            val urlImage = URL(ORIGIN_BASE_IMAGE_URL + imag.get())
+            CoroutineScope(Dispatchers.IO).launch {
+                val connection = urlImage.openConnection() as HttpURLConnection
+                connection.doInput = true
+                connection.content
+                val inputStream = connection.inputStream
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                saveToInternalStorage(bitmap)
+            }
+        } else {
+            requestPermissionForExternalStorage()
+        }
     }
+
+    private fun saveToInternalStorage(bitmapImage: Bitmap) {
+        SaveImage().save(activity, bitmapImage, this)
+    }
+
+
+    fun requestPermissionForExternalStorage() {
+        showPermissionDialog.postValue(true)
+    }
+
+    fun checkPermissionForExternalStorage(activity: Activity?): Boolean {
+        return if (ActivityCompat.checkSelfPermission(
+                activity!!,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            false
+        } else {
+            true
+        }
+    }
+
+
+    override fun onToastMsg(msg: String) {
+        CoroutineScope(Dispatchers.Main).launch { toastMsg.postValue(msg) }
+    }
+
+
+}
+
+interface Callback {
+    fun onToastMsg(msg: String)
 }
