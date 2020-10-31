@@ -2,14 +2,17 @@ package com.example.stars.ui.main.displayImage
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.app.ActivityCompat
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
+import com.example.stars.R
 import com.example.stars.network.service.ORIGIN_BASE_IMAGE_URL
 import com.example.stars.ui.base.BaseViewModel
+import com.example.stars.utils.DataBindingHelper
 import com.example.stars.utils.SaveImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +24,18 @@ import java.net.URL
 class DisplayImageViewModel() : BaseViewModel(), Callback {
     var imag = ObservableField("")
     lateinit var activity: Activity
-    var toastMsg = MutableLiveData<String>("")
+
     var showPermissionDialog = MutableLiveData<Boolean>(false)
 
     fun downloadImage() {
         if (checkPermissionForExternalStorage(activity)) {
-            onToastMsg("Starting Download")
+
+            if (!DataBindingHelper.isNetworkAvailable(activity)){
+                toastMsg.postValue(R.string.networkError)
+
+            }
+            else{
+            onToastMsg(R.string.startingDownlod)
             val urlImage = URL(ORIGIN_BASE_IMAGE_URL + imag.get())
             CoroutineScope(Dispatchers.IO).launch {
                 val connection = urlImage.openConnection() as HttpURLConnection
@@ -35,6 +44,7 @@ class DisplayImageViewModel() : BaseViewModel(), Callback {
                 val inputStream = connection.inputStream
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 saveToInternalStorage(bitmap)
+            }
             }
         } else {
             requestPermissionForExternalStorage()
@@ -64,7 +74,7 @@ class DisplayImageViewModel() : BaseViewModel(), Callback {
     }
 
 
-    override fun onToastMsg(msg: String) {
+    override fun onToastMsg(msg: Int) {
         CoroutineScope(Dispatchers.Main).launch { toastMsg.postValue(msg) }
     }
 
@@ -72,5 +82,5 @@ class DisplayImageViewModel() : BaseViewModel(), Callback {
 }
 
 interface Callback {
-    fun onToastMsg(msg: String)
+    fun onToastMsg(msg: Int)
 }

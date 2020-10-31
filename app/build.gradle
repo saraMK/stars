@@ -74,4 +74,5 @@ dependencies {
     implementation 'com.faltenreich:skeletonlayout:2.0.1'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.github.myinnos:ImageSaveandShare:1.0.4'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.6.0'
 }

@@ -1,46 +1,66 @@
 package com.example.stars.network.service
 
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
+import org.json.JSONObject
 import retrofit2.HttpException
+import java.io.IOException
 import java.net.SocketTimeoutException
 
-data class Resource<out T>(val status: Status, val data: T?, val message: String?) {
+ class HandleNet {
+    suspend inline fun <T> safeApiCall(
+        emitter: RemoteErrorEmitter,
+        crossinline responseFunction: suspend () -> T
+    ): T? {
+        return try {
+            val response = withContext(Dispatchers.IO) { responseFunction.invoke() }
+            response
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                e.printStackTrace()
+                Log.e("ApiCalls", "Call error: ${e.localizedMessage}", e.cause)
+                when (e) {
+                    is HttpException -> {
+                        val body = e.response()?.errorBody()
+                        emitter.onError(getErrorMessage(body))
+                    }
+                    is SocketTimeoutException -> emitter.onError(ErrorType.TIMEOUT)
+                    is IOException -> emitter.onError(ErrorType.NETWORK)
+                    else -> emitter.onError(ErrorType.UNKNOWN)
+                }
+            }
+            null
+        }
+    }
+
+    interface RemoteErrorEmitter {
+        fun onError(msg: String)
+        fun onError(errorType: ErrorType)
+    }
+
     companion object {
-        fun <T> success(data: T?): Resource<T> {
-            return Resource(Status.SUCCESS, data, null)
-        }
-
-        fun <T> error(msg: String, data: T?): Resource<T> {
-            return Resource(Status.ERROR, data, msg)
-        }
-
-
-    }
-}
-
-enum class Status {
-    SUCCESS,
-    ERROR
-}
-open class ResponseHandler {
-    fun <T : Any> handleSuccess(data: T): Resource<T> {
-        return Resource.success(data)
+        private const val MESSAGE_KEY = "message"
+        private const val ERROR_KEY = "error"
     }
 
-    fun <T : Any> handleException(e: Exception): Resource<T> {
-        return when (e) {
-            is HttpException -> Resource.error(getErrorMessage(e.code()), null)
-            is SocketTimeoutException -> Resource.error(getErrorMessage(1), null)
-            else -> Resource.error(getErrorMessage(Int.MAX_VALUE), null)
+    fun getErrorMessage(responseBody: ResponseBody?): String {
+        return try {
+            val jsonObject = JSONObject(responseBody!!.string())
+            when {
+                jsonObject.has(MESSAGE_KEY) -> jsonObject.getString(MESSAGE_KEY)
+                jsonObject.has(ERROR_KEY) -> jsonObject.getString(ERROR_KEY)
+                else -> "Something wrong happened"
+            }
+        } catch (e: Exception) {
+            "Something wrong happened"
         }
     }
 
-    private fun getErrorMessage(code: Int): String {
-        return when (code) {
-            1 -> "Timeout"
-            401 -> "Unauthorised"
-            404 -> "Not found"
-            422 -> "end"
-            else -> "Something went wrong"
-        }
+    enum class ErrorType {
+        NETWORK, // IO
+        TIMEOUT, // Socket
+        UNKNOWN //Anything else
     }
 }

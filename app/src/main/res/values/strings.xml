@@ -19,4 +19,8 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="networkError">Network error</string>
+    <string name="startingDownlod">Starting Download</string>
+    <string name="savedImage">Image is saved</string>
+    <string name="error_">error</string>
 </resources>

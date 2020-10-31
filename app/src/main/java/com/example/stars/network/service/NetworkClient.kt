@@ -10,6 +10,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
@@ -21,7 +22,7 @@ import javax.net.ssl.X509TrustManager
 const val BASE_URL = "https://api.themoviedb.org/3/"
 const val BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w300"
 const val ORIGIN_BASE_IMAGE_URL = "https://image.tmdb.org/t/p/original"
-private const val TIMEOUT_MIN = 2
+private const val TIMEOUT_MIN = 1
 lateinit var retrofit: Retrofit
 val API_KEY = "6657d7af64bf41b3f94254646a08a504"
 
@@ -41,7 +42,7 @@ fun getRetrofit(claint: OkHttpClient): Retrofit? {
 
     retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create(gson))
+        .addConverterFactory(MoshiConverterFactory.create())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .client(claint)
         .build();

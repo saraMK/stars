@@ -40,6 +40,7 @@ class DisplayImageActivity : BaseActivity<DisplayImageActivityBinding,DisplayIma
         })
 
         viewModel.toastMsg.observe(this, Observer {
+            if (it!=0)
             Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
         })
     }

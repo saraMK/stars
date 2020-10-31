@@ -1,36 +1,47 @@
 package com.example.stars.ui.main.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.example.stars.models.PeopleModel
+import com.example.stars.models.ResponseModel
+import com.example.stars.network.service.HandleNet
 import com.example.stars.ui.base.BaseViewModel
-import kotlinx.coroutines.Dispatchers
-import retrofit2.HttpException
 
 class HomeViewModel : BaseViewModel() {
 
     var page: Int = 1
     var loadMore = MutableLiveData<Boolean>(true)
-    fun getList(): LiveData<List<PeopleModel>> {
+    fun getList(): LiveData<ResponseModel<List<PeopleModel>>?> {
         isLoading.set(true)
-        return liveData(Dispatchers.IO) {
+        return liveData {
             try {
-                val retrived = repository.getPopularPerson(page)
-                Log.d("okhttp: <-- ", "${retrived}")
-                emit(retrived.results)
-                if (page==retrived.total_pages)
+                val response = HandleNet().safeApiCall(this@HomeViewModel) {
+                    repository.getPopularPerson(page)
+                }
+                emit(response)
+                if (page == response?.total_pages)
                     loadMore.postValue(false)
                 else loadMore.postValue(true)
 
                 page++
                 isLoading.set(false)
-            } catch (e: HttpException) {
-                Log.d("djdjdjdjdjjddj", e.message)
+            } catch (e: Exception) {
                 isLoading.set(false)
             }
         }
+
+
     }
 
+    override fun onError(msg: String) {
+        loadMore.postValue(false)
+    }
+
+    override fun onError(errorType: HandleNet.ErrorType) {
+        super.onError(errorType)
+         if (errorType.equals(HandleNet.ErrorType.NETWORK) || errorType.equals(HandleNet.ErrorType.TIMEOUT)) {
+          loadMore.postValue(true)
+        }
+    }
 }

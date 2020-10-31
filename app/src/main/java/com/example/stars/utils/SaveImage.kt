@@ -14,6 +14,7 @@ import com.example.stars.ui.main.displayImage.Callback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.antlr.v4.gui.GraphicsSupport.saveImage
 import java.io.File
 import java.io.FileOutputStream
 
@@ -22,12 +23,9 @@ open class SaveImage {
     fun save(
         activity: Activity, bmImg: Bitmap,callback: Callback
     ) {
-
-
             val filename: File
             try {
-                val path1 = Environment.getExternalStorageDirectory()
-                    .toString()
+                val path1 = activity.getExternalCacheDir().toString()
                 //Log.i("in save()", "after mkdir");
                 val file =
                     File(path1 + "/" + activity.getString(R.string.app_name))
@@ -46,22 +44,18 @@ open class SaveImage {
                 out.flush()
                 out.close()
                 val image = getImageContent(filename, DEFAULT_IMAGE_NAME, activity)
-                val result = activity.contentResolver.insert(
+                 activity.contentResolver.insert(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image
                 )
-
-                var SHARE_MESSAGE = "Image is saved "
-                 callback.onToastMsg(SHARE_MESSAGE)
+                callback.onToastMsg(R.string.savedImage)
             } catch (e: Exception) {
                 e.printStackTrace()
-                callback.onToastMsg("error")
+                callback.onToastMsg(R.string.error_)
             }
 
     }
 
-    fun toasstMsg(msg:String, activity: Activity){
-        CoroutineScope(Dispatchers.Main).launch {Toast.makeText(activity,msg,Toast.LENGTH_LONG).show()}
-    }
+
     fun getImageContent(
         parent: File,
         imageName: String?,

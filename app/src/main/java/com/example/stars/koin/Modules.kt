@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
      factory { HomeViewModel() }
-     factory { DetailsViewModel() }
+     factory { DetailsViewModel(get()) }
      factory { DisplayImageViewModel() }
      factory { PeopleAdapter() }
      factory { ImagesAdapter() }

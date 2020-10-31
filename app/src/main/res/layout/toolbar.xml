@@ -9,5 +9,12 @@
     android:id="@+id/toolbar"
     app:layout_collapseMode="pin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:id="@+id/toolbarTitle"
+        android:textSize="17sp"
+        android:fontFamily="@font/louis_bold"/>
 </androidx.appcompat.widget.Toolbar>
